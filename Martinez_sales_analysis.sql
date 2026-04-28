@@ -87,6 +87,66 @@ WHERE store_sales.Store_ID IN (852,853)
 GROUP BY products.Product
 ORDER BY TotalRevenue DESC;
 
-/* My recommendation for next quarter would be to focus on tech products. The Apple Macbook air is bringing in the most revenue and should be a focus. I would recommend making our tech produts the focus for marketing.
- I would suggest doing a Macbook giveaway on Social media by having our followers tag people they know and that would count as one entry. This would give us more exposure online and would result in higher traffic therefore more sales. */ 
+ /*  At the start of my analysis, I focused mainly on total revenue by product and identified high priced tech items such as the MacBook Pro as an area of focus. This led me to suggest focusing on marketing efforts on tech products including a 
+ social media giveaway meant to drive exposure and traffic. The following day I realized that although the MacBook contributes a large share of revenue, this is driven by its price rather than sales volume or clear evidnce that increased sales attention
+ would impact performance in one quarter. My analysis has now shifted to a more analytical approach rather than intuition. */ 
  
+ SELECT store_sales.Store_ID, products.Product, COUNT(*) AS QuantitySold, 
+ SUM(store_sales.Sale_Amount) AS TotalRevenue
+ FROM products
+ JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
+ WHERE store_sales.Store_ID IN (852,853) 
+ AND Transaction_Date BETWEEN '2025-09-01' AND '2025-12-31'
+ GROUP BY store_sales.Store_ID, products.Product
+ ORDER BY store_sales.Store_ID, TotalRevenue DESC;
+ 
+ -- It would be useful to analyzye each quarter by year. The results would help us identify any trends and point us to where our focus should be for the following quarter. 
+ 
+ SELECT YEAR(Transaction_Date) AS SalesYear,
+ store_sales.Store_ID, products.Product, COUNT(*) AS QuantitySold, 
+ SUM(store_sales.Sale_Amount) AS TotalRevenue
+ FROM products
+ JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
+ WHERE store_sales.Store_ID IN (852,853) 
+ AND ( Transaction_Date BETWEEN '2023-09-01' AND '2023-12-31' 
+ OR Transaction_Date BETWEEN '2024-09-01' AND '2024-12-31'
+ OR Transaction_Date BETWEEN '2025-09-01' AND '2025-12-31' )
+ GROUP BY YEAR(Transaction_Date), store_sales.Store_ID, products.Product
+ ORDER BY SalesYear, store_sales.Store_ID, QuantitySold DESC;
+ 
+ -- I realized this approach is difficult to read as it does not display the top products for each year.  
+ 
+ SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
+ SUM(store_sales.Sale_Amount) AS TotalRevenue
+ FROM products
+ JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
+ WHERE store_sales.Store_ID IN (852,853) 
+ AND Transaction_Date BETWEEN '2023-09-01' AND '2023-12-31'
+ GROUP BY YEAR(Transaction_Date), products.Product
+ ORDER BY QuantitySold DESC, TotalRevenue DESC
+ LIMIT 5;
+ -- Slack Premium was the top selling item. 
+ 
+ SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
+ SUM(store_sales.Sale_Amount) AS TotalRevenue
+ FROM products
+ JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
+ WHERE store_sales.Store_ID IN (852,853) 
+ AND Transaction_Date BETWEEN '2024-09-01' AND '2024-12-31'
+ GROUP BY YEAR(Transaction_Date), products.Product
+ ORDER BY QuantitySold DESC, TotalRevenue DESC
+ LIMIT 5;
+ -- Slack Premium was top selling item. 
+
+SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
+ SUM(store_sales.Sale_Amount) AS TotalRevenue
+ FROM products
+ JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
+ WHERE store_sales.Store_ID IN (852,853) 
+ AND Transaction_Date BETWEEN '2025-09-01' AND '2025-12-31'
+ GROUP BY YEAR(Transaction_Date), products.Product
+ ORDER BY QuantitySold DESC, TotalRevenue DESC
+ LIMIT 5;
+ -- Hand lettering practice workbook was top selling item. Microsoft Surface pro 9 was a close second bringing in $4075 in revenue. 
+ 
+ /* My recommendation for next quarter would be to put more focus on both high-volume lower cost items and high ticket electronics. Lower cost items will bring in more sales while electronics can generate more revenue. */ 
