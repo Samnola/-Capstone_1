@@ -2,7 +2,7 @@
 
 USE sample_sales; 
 
-/* What is total revenue overall for sales in the assigned territory, plus the start date and end date
+/* 1) What is total revenue overall for sales in the assigned territory, plus the start date and end date
 that tell you what period the data covers? */ 
 -- My first thought was to write a query to find the store ID pertinent to my region. Once I have that 
 -- ID I will find the start date and end date which will be needed in the query to find the revenue.
@@ -23,7 +23,7 @@ FROM store_sales
 WHERE Store_ID IN (852,853);
 -- The total revenue for South Carolina was $648,812.56
 
-/* What is the month by month revenue breakdown for the sales territory? */
+/* 2) What is the month by month revenue breakdown for the sales territory? */
 -- The "order by" difference would come down to: Do I want to focus on comparing the months to each other? 
 -- Or do I want to focus on the performance overall for the year?
 -- * October appears to be the strongest perfomring month by revenu across all three years. 
@@ -35,7 +35,7 @@ WHERE Store_ID IN (852,853)
 GROUP BY YEAR(Transaction_Date), MONTH(Transaction_Date) 
 ORDER BY YEAR(Transaction_Date), MONTH(Transaction_Date);
 
-/* Provide a comparison of total revenue for the specific sales territory and the region it belongs to. */ 
+/* 3) Provide a comparison of total revenue for the specific sales territory and the region it belongs to. */ 
 -- South carolina region vs South region 
 
 SELECT SUM(Sale_Amount) AS TotalRevenue
@@ -50,7 +50,7 @@ FROM store_sales
 WHERE Store_ID IN (852,853);
 -- Total Revenue: $648,812.56
 
-/* What is the number of transactions per month and average transaction size by product category
+/* 4) What is the number of transactions per month and average transaction size by product category
 for the sales territory? */ 
 
 SELECT MONTH(Transaction_Date) AS Month, COUNT(id) AS Transactions, 
@@ -60,7 +60,7 @@ WHERE Store_ID IN (852,853)
 GROUP BY MONTH(Transaction_Date)
 ORDER BY Month ASC;
 
-/* Can you provide a ranking of in-store sales performance by each store in the sales territory, or a
+/* 5) Can you provide a ranking of in-store sales performance by each store in the sales territory, or a
 ranking of online sales performance by state within an online sales territory? */
 
 SELECT ShiptoState AS State, COUNT(id) AS Transactions, SUM(SalesTotal) AS TotalSales
@@ -68,7 +68,7 @@ FROM online_sales
 GROUP BY ShiptoState
 ORDER BY TotalSales DESC;
 
--- What is your recommendation for where to focus sales attention in the next quarter?
+-- Brainstorming question 6 ----------------------------------------------------------------
  
 SELECT products.Product AS BestSeller, COUNT(*) AS Transactions
 FROM store_sales
@@ -103,9 +103,11 @@ ORDER BY TotalRevenue DESC;
  
  -- I realized this approach is difficult to read as it does not display the top products for each year.  
  
- /* Updated Analysis: After reviewing the data, the HP Spectre was the top revenue generating product in Q2 
- for 2023 and 2024, while the Macbook performed best in 2025. Because tech products shoed consistent success 
- across all three years, I would recommend focusing more sales attention on tech products next quarter.*/
+ /* 6) What is your recommendation for where to focus sales attention in the next quarter?
+ After reviewing the data, the HP Spectre was the top revenue generating product in Q2 
+ for 2023 and 2024, while the Macbook performed best in 2025. Because tech products showed consistent success 
+ across all three years, I would recommend focusing more sales attention on tech products next quarter, especially
+ laptops as they continue to generate strong revenue.*/
  
  SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
  SUM(store_sales.Sale_Amount) AS TotalRevenue
