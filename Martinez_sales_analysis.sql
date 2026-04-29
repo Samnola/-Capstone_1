@@ -103,8 +103,9 @@ ORDER BY TotalRevenue DESC;
  
  -- I realized this approach is difficult to read as it does not display the top products for each year.  
  
- /* Updated Analysis:  Given that the HP Spectre generated the most revenue in 2023 and 2024, and the Macbook was a top-performing 
- item in 2025 during Q2(May-August), we should place greater focus on tech products. */
+ /* Updated Analysis: After reviewing the data, the HP Spectre was the top revenue generating product in Q2 
+ for 2023 and 2024, while the Macbook performed best in 2025. Because tech products shoed consistent success 
+ across all three years, I would recommend focusing more sales attention on tech products next quarter.*/
  
  SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
  SUM(store_sales.Sale_Amount) AS TotalRevenue
