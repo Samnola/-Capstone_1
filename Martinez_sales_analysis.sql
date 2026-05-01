@@ -15,12 +15,14 @@ WHERE State = 'South Carolina';
 SELECT MIN(Transaction_Date),
 MAX(Transaction_Date)
 FROM store_sales;
+
 -- Start date: 2022-01-01 End date: 2025-12-31
 
 SELECT SUM(Sale_Amount) AS TotalRevenue, 
 MIN(Transaction_Date) AS StartDate, MAX(Transaction_Date) AS EndDate
 FROM store_sales 
 WHERE Store_ID IN (852,853);
+
 -- The total revenue for South Carolina was $648,812.56
 
 /* 2) What is the month by month revenue breakdown for the sales territory? */
@@ -41,45 +43,42 @@ ORDER BY YEAR(Transaction_Date), MONTH(Transaction_Date);
 SELECT SUM(Sale_Amount) AS TotalRevenue
 FROM store_sales 
 JOIN store_locations ON store_sales.Store_ID = store_locations.StoreID
-JOIN management ON store_locations.state = management.state
-WHERE Region= 'South';
--- Total Revenue: $7,996,850.12
+WHERE store_locations.State IN ('Florida', 'South Carolina', 'Texas');
+-- The total revenue for the South Region was $7996850.12
 
 SELECT SUM(Sale_amount) AS TotalRevenue
 FROM store_sales
 WHERE Store_ID IN (852,853);
--- Total Revenue: $648,812.56
+-- Assigned territory revenue: $648,812.56
 
 /* 4) What is the number of transactions per month and average transaction size by product category
 for the sales territory? */ 
-
-SELECT MONTH(Transaction_Date) AS Month, COUNT(id) AS Transactions, 
-AVG(Sale_Amount) AS AvgTransaction
+-- 
+SELECT MONTH(store_sales.Transaction_Date) AS Month, inventory_categories.Category,
+COUNT(*) AS Transactions,
+AVG(store_sales.Sale_Amount) AS AvgTransaction
 FROM store_sales
-WHERE Store_ID IN (852,853)
-GROUP BY MONTH(Transaction_Date)
-ORDER BY Month ASC;
+JOIN products 
+ON store_sales.Prod_Num = products.ProdNum
+JOIN inventory_categories
+ON products.Categoryid = inventory_categories.Categoryid
+WHERE store_sales.Store_ID IN (852,853)
+GROUP BY Month, inventory_categories.Category
+ORDER BY Month ASC, Transactions DESC;
+
 
 /* 5) Can you provide a ranking of in-store sales performance by each store in the sales territory, or a
 ranking of online sales performance by state within an online sales territory? */
 
-SELECT ShiptoState AS State, COUNT(id) AS Transactions, SUM(SalesTotal) AS TotalSales
+SELECT ShiptoState AS State, COUNT(*) AS Transactions, 
+SUM(SalesTotal) AS TotalSales
 FROM online_sales
+WHERE ShiptoState IN ('Florida', 'South Carolina', 'Texas')
 GROUP BY ShiptoState
 ORDER BY TotalSales DESC;
 
 -- Brainstorming question 6 ----------------------------------------------------------------
  
-SELECT products.Product AS BestSeller, COUNT(*) AS Transactions
-FROM store_sales
-JOIN products ON products.ProdNum = store_sales.Prod_Num
-WHERE store_sales.Store_ID IN (852,853)
-GROUP BY products.Product
-ORDER BY Transactions DESC
-LIMIT 5;
- -- Pendaflex hanging file folders and The omnivore's Dilemma is a top seller 
--- I realize the best selling product may not equate to the most revenue so I have to adjust my query. 
-
 SELECT products.Product, SUM(store_sales.Sale_Amount) AS TotalRevenue
 FROM store_sales
 JOIN products ON store_sales.Prod_Num = products.ProdNum
@@ -104,41 +103,41 @@ ORDER BY TotalRevenue DESC;
  -- I realized this approach is difficult to read as it does not display the top products for each year.  
  
  /* 6) What is your recommendation for where to focus sales attention in the next quarter?
- After reviewing the data, the HP Spectre was the top revenue generating product in Q2 
- for 2023 and 2024, while the Macbook performed best in 2025. Because tech products showed consistent success 
- across all three years, I would recommend focusing more sales attention on tech products next quarter, especially
- laptops as they continue to generate strong revenue.*/
+ I recommend prioritzing sales attention on the Technology category specifically high-end laptops. My analysis shows that tech products consistently
+ lead in both revenue and volume during this period. This aligns with the "Back to school" season in august which would maximize revenue in the upcoming quarter.*/
  
  SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
  SUM(store_sales.Sale_Amount) AS TotalRevenue
  FROM products
  JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
  WHERE store_sales.Store_ID IN (852,853) 
- AND Transaction_Date BETWEEN '2023-05-01' AND '2023-08-31'
+ AND Transaction_Date BETWEEN '2024-07-01' AND '2024-09-30'
  GROUP BY YEAR(Transaction_Date), products.Product
  ORDER BY TotalRevenue DESC
- LIMIT 5;
+ LIMIT 10;
 
  
- SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
- SUM(store_sales.Sale_Amount) AS TotalRevenue
- FROM products
- JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
- WHERE store_sales.Store_ID IN (852,853) 
- AND Transaction_Date BETWEEN '2024-05-01' AND '2024-8-31'
- GROUP BY YEAR(Transaction_Date), products.Product
- ORDER BY TotalRevenue DESC
- LIMIT 5;
  
-
 SELECT YEAR(Transaction_Date) AS SalesYear, products.Product, COUNT(*) AS QuantitySold,
  SUM(store_sales.Sale_Amount) AS TotalRevenue
  FROM products
  JOIN store_sales ON store_sales.Prod_Num = products.ProdNum
  WHERE store_sales.Store_ID IN (852,853) 
- AND Transaction_Date BETWEEN '2025-05-01' AND '2025-08-31'
+ AND Transaction_Date BETWEEN '2025-07-01' AND '2025-09-30'
  GROUP BY YEAR(Transaction_Date), products.Product
  ORDER BY TotalRevenue DESC
- LIMIT 5;
+ LIMIT 10;
 
+ -- I also wanted to analyze the top product sold for my territory and the revenue the top 5 items brought in. --
  
+ SELECT products.Product, 
+ COUNT(*) AS QuantitySold, 
+ SUM(store_sales.Sale_Amount) AS TotalRevenue
+ FROM products
+ JOIN store_sales
+ ON store_sales.Prod_Num = products.ProdNum
+ WHERE store_sales.Store_ID IN (852,853)
+ AND Transaction_Date BETWEEN '2025-04-01' AND '2025-06-30'
+ GROUP BY products.Product
+ ORDER BY QuantitySold DESC 
+ LIMIT 10;
